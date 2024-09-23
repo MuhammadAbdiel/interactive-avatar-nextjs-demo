@@ -30,8 +30,12 @@ export default function InteractiveAvatar() {
   const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
   const [stream, setStream] = useState<MediaStream>();
   const [debug, setDebug] = useState<string>();
-  const [knowledgeId, setKnowledgeId] = useState<string>("");
-  const [avatarId, setAvatarId] = useState<string>("");
+  const [knowledgeId, setKnowledgeId] = useState<string>(
+    "ea46ba7fdf0d4e60a66ebab4d48914d2"
+  );
+  const [avatarId, setAvatarId] = useState<string>(
+    "c5c290e4a54444f7b57583682c463376"
+  );
   const [data, setData] = useState<StartAvatarResponse>();
   const [text, setText] = useState<string>("");
   const mediaStream = useRef<HTMLVideoElement>(null);
@@ -89,6 +93,9 @@ export default function InteractiveAvatar() {
       const res = await avatar.current.createStartAvatar({
         quality: AvatarQuality.Low,
         avatarName: avatarId,
+        voice: {
+          voiceId: "k8F48nPW6GVasZMZaQvD",
+        },
         knowledgeId: knowledgeId,
       });
 
@@ -109,11 +116,9 @@ export default function InteractiveAvatar() {
 
       return;
     }
-    await avatar.current
-      .speak({ text: text })
-      .catch((e) => {
-        setDebug(e.message);
-      });
+    await avatar.current.speak({ text: text }).catch((e) => {
+      setDebug(e.message);
+    });
     setIsLoadingRepeat(false);
   }
   async function handleInterrupt() {
@@ -122,11 +127,9 @@ export default function InteractiveAvatar() {
 
       return;
     }
-    await avatar.current
-      .interrupt()
-      .catch((e) => {
-        setDebug(e.message);
-      });
+    await avatar.current.interrupt().catch((e) => {
+      setDebug(e.message);
+    });
   }
   async function endSession() {
     if (!avatar.current) {
@@ -134,6 +137,16 @@ export default function InteractiveAvatar() {
 
       return;
     }
+
+    // Animasi ketika video di-close
+    if (mediaStream.current) {
+      mediaStream.current.classList.remove("scale-100");
+      mediaStream.current.classList.add("scale-0");
+
+      // Delay sebelum menghentikan sesi untuk memberi waktu animasi selesai
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
     await avatar.current.stopAvatar();
     setStream(undefined);
   }
@@ -182,6 +195,7 @@ export default function InteractiveAvatar() {
           {stream ? (
             <div className="h-[500px] w-[900px] justify-center items-center flex rounded-lg overflow-hidden">
               <video
+                className="transition-transform duration-500 ease-out scale-0"
                 ref={mediaStream}
                 autoPlay
                 playsInline
@@ -189,6 +203,12 @@ export default function InteractiveAvatar() {
                   width: "100%",
                   height: "100%",
                   objectFit: "contain",
+                }}
+                onLoadedMetadata={() => {
+                  mediaStream.current!.play();
+                  setDebug("Playing");
+                  mediaStream.current!.classList.remove("scale-0");
+                  mediaStream.current!.classList.add("scale-100");
                 }}
               >
                 <track kind="captions" />
