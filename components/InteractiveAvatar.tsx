@@ -3,6 +3,8 @@ import type { StartAvatarResponse } from "@heygen/streaming-avatar";
 import StreamingAvatar, {
   AvatarQuality,
   StreamingEvents,
+  TaskType,
+  VoiceEmotion,
 } from "@heygen/streaming-avatar";
 import {
   Button,
@@ -23,7 +25,7 @@ import { useMemoizedFn, usePrevious } from "ahooks";
 
 import InteractiveAvatarTextInput from "./InteractiveAvatarTextInput";
 
-import { AVATARS } from "@/app/lib/constants";
+import { AVATARS, STT_LANGUAGE_LIST } from "@/app/lib/constants";
 
 export default function InteractiveAvatar() {
   const [isLoadingSession, setIsLoadingSession] = useState(false);
@@ -36,6 +38,8 @@ export default function InteractiveAvatar() {
   const [avatarId, setAvatarId] = useState<string>(
     "c5c290e4a54444f7b57583682c463376"
   );
+  const [language, setLanguage] = useState<string>("id");
+
   const [data, setData] = useState<StartAvatarResponse>();
   const [text, setText] = useState<string>("");
   const mediaStream = useRef<HTMLVideoElement>(null);
@@ -95,8 +99,11 @@ export default function InteractiveAvatar() {
         avatarName: avatarId,
         voice: {
           voiceId: "k8F48nPW6GVasZMZaQvD",
+          rate: 1.5, // 0.5 ~ 1.5
+          emotion: VoiceEmotion.EXCITED,
         },
         knowledgeId: knowledgeId,
+        language: language,
       });
 
       setData(res);
@@ -116,6 +123,7 @@ export default function InteractiveAvatar() {
 
       return;
     }
+    // speak({ text: text, task_type: TaskType.REPEAT })
     await avatar.current.speak({ text: text }).catch((e) => {
       setDebug(e.message);
     });
@@ -265,6 +273,19 @@ export default function InteractiveAvatar() {
                     >
                       {avatar.name}
                     </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Select language"
+                  placeholder="Select language"
+                  className="max-w-xs"
+                  selectedKeys={[language]}
+                  onChange={(e) => {
+                    setLanguage(e.target.value);
+                  }}
+                >
+                  {STT_LANGUAGE_LIST.map((lang) => (
+                    <SelectItem key={lang.key}>{lang.label}</SelectItem>
                   ))}
                 </Select>
               </div>
