@@ -99,7 +99,7 @@ export default function InteractiveAvatar() {
         avatarName: avatarId,
         voice: {
           voiceId: "k8F48nPW6GVasZMZaQvD",
-          rate: 1.5, // 0.5 ~ 1.5
+          rate: 1.0, // 0.5 ~ 1.5
           emotion: VoiceEmotion.EXCITED,
         },
         knowledgeId: knowledgeId,
@@ -203,7 +203,6 @@ export default function InteractiveAvatar() {
           {stream ? (
             <div className="h-[500px] w-[900px] justify-center items-center flex rounded-lg overflow-hidden">
               <video
-                className="transition-transform duration-500 ease-out scale-0"
                 ref={mediaStream}
                 autoPlay
                 playsInline
@@ -211,12 +210,6 @@ export default function InteractiveAvatar() {
                   width: "100%",
                   height: "100%",
                   objectFit: "contain",
-                }}
-                onLoadedMetadata={() => {
-                  mediaStream.current!.play();
-                  setDebug("Playing");
-                  mediaStream.current!.classList.remove("scale-0");
-                  mediaStream.current!.classList.add("scale-100");
                 }}
               >
                 <track kind="captions" />
